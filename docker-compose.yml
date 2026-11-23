@@ -1,0 +1,39 @@
+services:
+  # Service 1: Database MySQL
+  db_mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - wp_data:/var/lib/mysql
+    networks:
+      - wp_network
+    restart: always
+
+  # Service 2: WordPress
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST: db_mysql
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+    depends_on:
+      - db_mysql
+    networks:
+      - wp_network
+    restart: always
+
+# Volume permanen untuk data MySQL
+volumes:
+  wp_data:
+
+# Jaringan internal terisolasi
+networks:
+  wp_network:
+    driver: bridge
